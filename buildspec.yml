@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+      - REPOSITORY_NAME=practice_go  # ECRリポジトリ名
+      - REPOSITORY_URL=${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/$REPOSITORY_NAME
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)  # GitのコミットIDの最初の7文字をイメージタグに使用
+      - echo "Repository name: $REPOSITORY_NAME"
+      - echo "Image tag: $IMAGE_TAG"
+  build:
+    commands:
+      - echo "Starting Docker build..."
+      - docker build -t $REPOSITORY_NAME:$IMAGE_TAG .
+  post_build:
+    commands:
+      - echo "Tagging Docker image..."
+      - docker tag $REPOSITORY_NAME:$IMAGE_TAG ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
+      - echo "Pushing Docker image to ECR..."
+      - docker push ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
+      - echo "Build completed successfully."
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
