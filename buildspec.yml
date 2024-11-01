@@ -20,9 +20,11 @@ phases:
       - "docker tag $REPOSITORY_NAME:$IMAGE_TAG ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG"
       - "echo Pushing Docker image to ECR..."
       - "docker push ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG"
+      - "echo Creating imagedefinitions.json file..."
+      - echo "[{\"name\":\"practice_go\",\"imageUri\":\"${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPOSITORY_NAME}:${IMAGE_TAG}\"}]" > imagedefinitions.json
       - "echo Build completed successfully."
 
 artifacts:
   files:
-    - '**/*'
+    - imagedefinitions.json
   discard-paths: yes
