@@ -21,7 +21,7 @@ FROM gcr.io/distroless/static
 COPY --from=builder /app/myapp /myapp
 
 # サーバーがリッスンするポートを指定
-EXPOSE 8080
+EXPOSE 9000
 
 # アプリケーションの実行
 CMD ["/myapp"]
